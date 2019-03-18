@@ -5,18 +5,19 @@ OUT_PREFIX=$1
 BIN_DIR="$(cd "$(dirname "$0")"/../.. || exit; pwd)/bin"
 export BIN_DIR
 
-# install the necessary sqlite headers
 apt-get update
 apt-get install libsqlite3-dev
 
-echo "Building Python…"
-# SOURCE_TARBALL='https://python.org/ftp/python/3.7.2/Python-3.7.2.tgz'
+echo "Getting source..."
+SOURCE_TARBALL="https://python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz"
 
+
+echo "Building Python…"
 curl -L $SOURCE_TARBALL | tar xz
-mv $VERSION src
+mv Python-$VERSION src
 cd src
 
-./configure --prefix=$OUT_PREFIX --with-ensurepip=no
+./configure --prefix=$OUT_PREFIX  --enable-unicode=ucs4 --with-ensurepip=no
 make
 make install
 
@@ -24,13 +25,8 @@ make install
 # https://github.com/docker-library/python
 find "${OUT_PREFIX}" \( -type d -a \( -name test -o -name tests \) \) -exec rm -rf '{}' +
 
-# Remove spare /
-LOCATION=${OUT_PREFIX%?}
-
-ln $LOCATION/bin/python3 $LOCATION/bin/python
-
 # copy over sqlite3 headers
-cp "/usr/include/sqlite3"* "$LOCATION/include/"
+cp "/usr/include/sqlite3"* "${OUT_PREFIX}include/"
 
 # create generic .so symlink against stack image
-ln -s "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0" "$LOCATION/lib/libsqlite3.so"
+ln -s "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0" "${OUT_PREFIX}lib/libsqlite3.so"

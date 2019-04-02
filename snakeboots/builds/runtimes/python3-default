@@ -2,6 +2,7 @@
 # Build Path: /app/.heroku/python/
 
 OUT_PREFIX=$1
+VERSION=${2#python-}
 BIN_DIR="$(cd "$(dirname "$0")"/../.. || exit; pwd)/bin"
 export BIN_DIR
 
